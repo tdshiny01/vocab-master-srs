@@ -1,0 +1,3477 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>Pastel Vocab Learner</title>
+
+  <style>
+
+    :root {
+      --bg-color: #fdf6e3;
+      --primary: #a2d2ff;
+      --secondary: #ffafcc;
+      --text: #5c5c5c;
+      --card-bg: #ffffff;
+      --shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px;
+      box-sizing: border-box;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3 {
+      color: #8e9aaf;
+      text-align: center;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 2px solid #eef0f2;
+      border-radius: 10px;
+      font-size: 16px;
+      color: var(--text);
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #8bb8e8;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    button.btn-pink {
+      background-color: var(--secondary);
+    }
+
+    button.btn-pink:hover {
+      background-color: #e59db6;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      background: #e8f4f8;
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .streak-fire {
+      color: #ff9f1c;
+      font-size: 18px;
+    }
+
+    .time-tracker {
+      color: #4a6fa5;
+      text-align: center;
+    }
+
+    .digital-clock {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 26px;
+      font-family: monospace;
+      display: block;
+      margin-top: 5px;
+      background: #fff;
+      padding: 5px 15px;
+      border-radius: 8px;
+      border: 1px solid #cce5ff;
+    }
+
+    .cal-wrapper {
+      background: #fff;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #eef0f2;
+      margin-bottom: 20px;
+    }
+
+    .flashcard {
+      height: 350px;
+      perspective: 1000px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .flashcard.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-front,
+    .flashcard-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 15px;
+      background: #fff4f1;
+      border: 2px solid #ffd6cc;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .flashcard-back {
+      transform: rotateY(180deg);
+      background: #f0f8ff;
+      border-color: #cce5ff;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background: #f8f9fa;
+      color: var(--text);
+      border: 2px solid #dee2e6;
+    }
+
+    .option-btn.selected {
+      border-color: var(--primary);
+      background: #e8f4f8;
+    }
+
+    .option-btn.correct {
+      background: #d4edda !important;
+      border-color: #c3e6cb !important;
+    }
+
+    .option-btn.wrong {
+      background: #f8d7da !important;
+      border-color: #f5c6cb !important;
+    }
+
+    .audio-btn {
+      width: auto;
+      padding: 5px 10px;
+      background: #e2eafc;
+      color: #555;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid #cce5ff;
+    }
+
+    .audio-btn:hover {
+      background: #cce5ff;
+    }
+
+    .word-details-box {
+      margin-top: 20px;
+      background: #f0f8ff;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #cce5ff;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .ipa {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 17px;
+      color: #666;
+      margin-left: 5px;
+      letter-spacing: 0.2px;
+    }
+
+    @media (max-width: 600px) {
+
+      .app-container {
+        padding: 15px;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="app-container">
+
+  <noscript>
+
+    <h2 style="color:red; text-align:center;">
+      Trình duyệt của bạn đang chặn JavaScript.
+      Vui lòng bật lên để sử dụng.
+    </h2>
+
+  </noscript>
+
+
+  <!-- AUTH VIEW -->
+
+  <div id="view-auth">
+
+    <h2>Spaced Repetition Vocab</h2>
+
+    <input
+      type="text"
+      id="username"
+      placeholder="Tên đăng nhập"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Mật khẩu"
+      onkeypress="if(event.key === 'Enter') handleLogin()"
+    >
+
+    <div>
+
+      <input
+        type="checkbox"
+        id="save-pass"
+        style="width: auto;"
+      >
+
+      <label>Lưu mật khẩu</label>
+
+    </div>
+
+    <button
+      type="button"
+      onclick="handleLogin()"
+    >
+      Đăng nhập
+    </button>
+
+    <button
+      type="button"
+      class="btn-pink"
+      onclick="handleRegister()"
+    >
+      Tạo tài khoản mới
+    </button>
+
+    <p
+      id="auth-msg"
+      style="color:red; text-align:center; font-weight:bold;"
+    ></p>
+
+  </div>
+
+
+  <!-- MAIN DASHBOARD -->
+
+  <div id="view-dashboard" class="hidden">
+
+    <h2>
+      Chào mừng,
+      <span id="display-name"></span>!
+    </h2>
+
+    <div class="stats-bar">
+
+      <div>
+        🔥 Streak:
+        <span
+          id="streak-count"
+          class="streak-fire"
+        >
+          0
+        </span>
+        ngày
+      </div>
+
+      <div class="time-tracker">
+
+        ⏱️ Tổng thời gian học:
+
+        <span
+          id="total-time"
+          class="digital-clock"
+        >
+          00:00:00
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- LỊCH SỬ HỌC -->
+
+    <div id="calendar-container"></div>
+
+
+    <button
+      type="button"
+      onclick="showView('view-add')"
+    >
+      ➕ Thêm từ vựng mới
+    </button>
+
+    <button
+      type="button"
+      class="btn-pink"
+      onclick="setupStudySession('srs')"
+    >
+      🧠 Ôn tập ngắt quãng (SRS)
+    </button>
+
+    <button
+      type="button"
+      onclick="setupStudySession('flashcard')"
+    >
+      📇 Luyện Flashcard
+    </button>
+
+    <button
+      type="button"
+      onclick="setupStudySession('mcq')"
+    >
+      📝 Luyện Trắc nghiệm
+    </button>
+
+    <button
+      type="button"
+      onclick="setupStudySession('written')"
+    >
+      ✍️ Luyện Tự luận
+    </button>
+
+    <button
+      type="button"
+      style="background:#e63946;"
+      onclick="handleLogout()"
+    >
+      Đăng xuất
+    </button>
+
+  </div>
+
+
+  <!-- THÊM TỪ VỰNG -->
+
+  <div id="view-add" class="hidden">
+
+    <h3>Thêm từ vựng</h3>
+
+    <input
+      type="text"
+      id="add-set"
+      placeholder="Tên bộ từ (hoặc chọn bộ cũ)"
+    >
+
+    <input
+      type="text"
+      id="add-eng"
+      placeholder="Tiếng Anh (Bắt buộc)"
+    >
+
+    <input
+      type="text"
+      id="add-phon"
+      placeholder="IPA - American English, ví dụ /ˈæpəl/"
+    >
+
+    <input
+      type="text"
+      id="add-vie"
+      placeholder="Nghĩa Tiếng Việt (Bắt buộc)"
+    >
+
+    <input
+      type="text"
+      id="add-ex"
+      placeholder="Ví dụ"
+    >
+
+    <input
+      type="text"
+      id="add-note"
+      placeholder="Lưu ý"
+    >
+
+    <button
+      type="button"
+      onclick="saveWord()"
+    >
+      Lưu từ vựng
+    </button>
+
+    <button
+      type="button"
+      class="btn-pink"
+      onclick="showView('view-dashboard')"
+    >
+      Quay lại
+    </button>
+
+    <p
+      id="add-msg"
+      style="text-align:center; font-weight:bold;"
+    ></p>
+
+  </div>
+
+
+  <!-- CÀI ĐẶT TRƯỚC KHI HỌC -->
+
+  <div id="view-setup" class="hidden">
+
+    <h3 id="setup-title">
+      Cài đặt bài học
+    </h3>
+
+    <div id="set-selection">
+      <p>Đang tải danh sách bộ từ...</p>
+    </div>
+
+    <select id="word-limit">
+
+      <option value="5">5 từ</option>
+
+      <option value="10">10 từ</option>
+
+      <option value="20">20 từ</option>
+
+      <option value="30">30 từ</option>
+
+      <option value="50">50 từ</option>
+
+    </select>
+
+    <button
+      type="button"
+      onclick="startStudy()"
+    >
+      Bắt đầu học
+    </button>
+
+    <button
+      type="button"
+      class="btn-pink"
+      onclick="showView('view-dashboard')"
+    >
+      Quay lại
+    </button>
+
+  </div>
+
+
+  <!-- WORKSPACE HỌC TẬP -->
+
+  <div id="view-study" class="hidden">
+
+    <div
+      style="display:flex; justify-content:space-between;"
+    >
+
+      <span id="study-progress">
+        1/10
+      </span>
+
+      <button
+        type="button"
+        class="btn-pink"
+        style="width:auto; padding:5px 15px;"
+        onclick="exitStudy()"
+      >
+        Thoát
+      </button>
+
+    </div>
+
+    <div
+      id="study-content"
+      style="margin-top:20px;"
+    ></div>
+
+    <button
+      type="button"
+      id="next-btn"
+      class="hidden"
+      style="margin-top:20px;"
+      onclick="nextCard()"
+    >
+      Tiếp tục (Enter)
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  let currentUser = "";
+
+  let globalVocab = [];
+
+  let studyQueue = [];
+
+  let currentCardIndex = 0;
+
+  let currentMode = "";
+
+  let localTotalSeconds = 0;
+
+  let unsavedSeconds = 0;
+
+  let clockInterval;
+
+  let isSavingActivity = false;
+
+
+  /* =====================================================
+     FLEXIBLE ANSWER NORMALIZATION
+     =====================================================
+     Không phân biệt chữ hoa/thường và các biến thể Unicode
+     thường gặp khi người dùng gõ hoặc copy từ văn bản đẹp.
+  ===================================================== */
+
+  function normalizeAnswer(text) {
+
+    if (text === null || text === undefined) {
+      return '';
+    }
+
+    return String(text)
+      .normalize('NFKC')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/[\u00A0\u202F]/g, ' ')
+      .replace(/[\u2018\u2019\u201A\u201B\u2032]/g, "'")
+      .replace(/[\u201C\u201D\u201E\u201F\u00AB\u00BB]/g, '"')
+      .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212\u2015]/g, '-')
+      .replace(/\u2026/g, '...')
+      .replace(/[\u2044\u2215]/g, '/')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+
+  }
+
+
+  function safeStr(str) {
+
+    if (!str) return '';
+
+    return String(str)
+      .replace(/'/g, "\\'")
+      .replace(/"/g, "&quot;");
+
+  }
+
+
+  function getLocalTodayStr() {
+
+    const d = new Date();
+
+    return d.getFullYear() +
+      "-" +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      "-" +
+      String(d.getDate()).padStart(2, '0');
+
+  }
+
+
+  /* =====================================================
+     AUDIO SYSTEM
+     REAL AMERICAN ENGLISH / en-US
+
+     Mục tiêu:
+     - Chỉ cho phép voice English (United States)
+     - Không bao giờ dùng voice tiếng Việt làm fallback
+     - Ưu tiên các giọng English tự nhiên trên Chrome/Windows
+     - Nếu browser voice không có, dùng Google TTS en-US
+     - Không đọc IPA / nghĩa tiếng Việt / ký tự thừa
+     ===================================================== */
+
+  let preferredUSVoice = null;
+  let voicesReady = false;
+
+  const US_VOICE_PRIORITY = [
+    // Microsoft Natural / Online voices
+    /Microsoft.*Jenny.*(Online|Natural)?.*English.*(United States|US)/i,
+    /Microsoft.*Aria.*(Online|Natural)?.*English.*(United States|US)/i,
+    /Microsoft.*Guy.*(Online|Natural)?.*English.*(United States|US)/i,
+
+    // Google
+    /Google US English/i,
+
+    // Common Windows US voices
+    /Microsoft.*Zira/i,
+    /Microsoft.*David/i,
+    /Microsoft.*Mark/i,
+    /Microsoft.*Samantha/i,
+
+    // Other known US English voices
+    /Samantha/i,
+    /Alex/i
+  ];
+
+  function isStrictUSEnglishVoice(voice) {
+    if (!voice) return false;
+
+    const lang = String(voice.lang || '')
+      .trim()
+      .toLowerCase()
+      .replace('_', '-');
+
+    /*
+      CHỈ nhận:
+      en-US
+      en-us-...
+
+      Không nhận:
+      vi-VN
+      en-GB
+      en-AU
+      en-IN
+      ...
+    */
+    return lang === 'en-us' || lang.startsWith('en-us-');
+  }
+
+  function loadUSVoice() {
+
+    if (!('speechSynthesis' in window)) {
+      preferredUSVoice = null;
+      voicesReady = false;
+      return;
+    }
+
+    const voices = window.speechSynthesis.getVoices() || [];
+
+    /*
+      Tuyệt đối không chọn voice chỉ vì nó có chữ "English".
+      Phải là en-US thật sự.
+    */
+    const usVoices = voices.filter(isStrictUSEnglishVoice);
+
+    if (!usVoices.length) {
+      preferredUSVoice = null;
+      voicesReady = true;
+      return;
+    }
+
+    /*
+      Ưu tiên voice tự nhiên trước.
+    */
+    preferredUSVoice = null;
+
+    for (const pattern of US_VOICE_PRIORITY) {
+      const found = usVoices.find(v => pattern.test(v.name || ''));
+      if (found) {
+        preferredUSVoice = found;
+        break;
+      }
+    }
+
+    /*
+      Nếu không có tên nằm trong danh sách ưu tiên,
+      lấy voice en-US đầu tiên.
+    */
+    if (!preferredUSVoice) {
+      preferredUSVoice = usVoices[0];
+    }
+
+    voicesReady = true;
+  }
+
+  function waitForUSVoice(timeout = 1200) {
+
+    return new Promise(resolve => {
+
+      loadUSVoice();
+
+      if (preferredUSVoice) {
+        resolve(preferredUSVoice);
+        return;
+      }
+
+      const start = Date.now();
+
+      const timer = setInterval(() => {
+
+        loadUSVoice();
+
+        if (preferredUSVoice) {
+          clearInterval(timer);
+          resolve(preferredUSVoice);
+          return;
+        }
+
+        if (Date.now() - start >= timeout) {
+          clearInterval(timer);
+          resolve(null);
+        }
+
+      }, 50);
+
+    });
+
+  }
+
+  if ('speechSynthesis' in window) {
+
+    loadUSVoice();
+
+    window.speechSynthesis.onvoiceschanged = () => {
+      loadUSVoice();
+    };
+
+  }
+
+  /*
+    Làm sạch nội dung trước khi đưa vào TTS.
+
+    QUAN TRỌNG:
+    - Chỉ truyền phần tiếng Anh.
+    - Không truyền IPA.
+    - Không truyền nghĩa tiếng Việt.
+    - Không truyền nhãn "Tiếng Anh:", "Ví dụ:"...
+  */
+  function cleanEnglishForSpeech(text) {
+
+    if (text === null || text === undefined) {
+      return '';
+    }
+
+    let value = String(text)
+      .replace(/\u00A0/g, ' ')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    /*
+      Nếu người dùng vô tình nhập IPA sau từ,
+      không đọc phần IPA đó.
+      Ví dụ:
+      apple /ˈæpəl/
+    */
+    value = value
+      .replace(
+        /\s*\/(?:[^\/\n]|\\\/)+\/\s*$/u,
+        ''
+      )
+      .trim();
+
+    /*
+      Không cho TTS đọc emoji hoặc các ký tự trang trí.
+      Vẫn giữ dấu câu tiếng Anh để ngắt câu tự nhiên.
+    */
+    value = value
+      .replace(
+        /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,
+        ' '
+      )
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return value;
+  }
+
+  /*
+    Google TTS:
+    - tl=en-US
+    - Không bao giờ gửi tl=vi
+    - ttsspeed=0.82 để âm thanh rõ hơn khi học
+  */
+  function speakWithGoogleUS(text) {
+
+    return new Promise((resolve, reject) => {
+
+      const cleanText =
+        cleanEnglishForSpeech(text);
+
+      if (!cleanText) {
+        resolve(false);
+        return;
+      }
+
+      try {
+
+        const url =
+          'https://translate.google.com/translate_tts' +
+          '?ie=UTF-8' +
+          '&tl=en-US' +
+          '&client=tw-ob' +
+          '&ttsspeed=0.82' +
+          '&q=' +
+          encodeURIComponent(cleanText);
+
+        const audio =
+          new Audio();
+
+        audio.preload = 'auto';
+        audio.volume = 1.0;
+
+        let finished = false;
+
+        const success = () => {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          resolve(true);
+        };
+
+        const failure = () => {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          reject(new Error('Google TTS unavailable'));
+        };
+
+        const cleanup = () => {
+          audio.onended = null;
+          audio.onerror = null;
+          audio.onabort = null;
+        };
+
+        audio.onended = success;
+        audio.onerror = failure;
+        audio.onabort = failure;
+
+        audio.src = url;
+
+        const playPromise = audio.play();
+
+        if (playPromise !== undefined) {
+
+          playPromise.catch(() => {
+            failure();
+          });
+
+        }
+
+      }
+      catch (e) {
+        reject(e);
+      }
+
+    });
+
+  }
+
+  /*
+    Browser fallback:
+
+    CỰC KỲ QUAN TRỌNG:
+    Không dùng:
+      - vi-VN
+      - voice bất kỳ nếu voice đó không phải en-US
+
+    Nếu máy không có voice en-US:
+    -> không cố tình dùng giọng tiếng Việt.
+    -> trả false để hệ thống thử Google TTS.
+  */
+  async function speakWithUSVoice(text) {
+
+    if (!('speechSynthesis' in window)) {
+      return false;
+    }
+
+    const cleanText =
+      cleanEnglishForSpeech(text);
+
+    if (!cleanText) {
+      return false;
+    }
+
+    const voice =
+      await waitForUSVoice();
+
+    if (!voice || !isStrictUSEnglishVoice(voice)) {
+      return false;
+    }
+
+    try {
+
+      window.speechSynthesis.cancel();
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          cleanText
+        );
+
+      /*
+        Bắt buộc American English.
+      */
+      utterance.lang = 'en-US';
+
+      /*
+        Gắn đúng voice en-US.
+      */
+      utterance.voice = voice;
+
+      /*
+        Tốc độ hơi chậm để học phát âm,
+        nhưng vẫn giữ nhịp tiếng Anh tự nhiên.
+      */
+      utterance.rate = 0.88;
+
+      /*
+        Pitch tự nhiên.
+      */
+      utterance.pitch = 1.0;
+
+      utterance.volume = 1.0;
+
+      window.speechSynthesis.speak(
+        utterance
+      );
+
+      return true;
+
+    }
+    catch (e) {
+
+      return false;
+
+    }
+
+  }
+
+  /*
+    HÀM PHÁT ÂM CHÍNH
+
+    Thứ tự:
+    1. Google TTS en-US
+    2. Browser voice en-US
+
+    Tuyệt đối KHÔNG fallback sang tiếng Việt.
+  */
+  async function speak(text) {
+
+    const cleanText =
+      cleanEnglishForSpeech(text);
+
+    if (!cleanText) {
+      return;
+    }
+
+    /*
+      Dừng audio/voice trước đó để tránh
+      hai giọng đọc chồng lên nhau.
+    */
+    try {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+    catch (e) {}
+
+    /*
+      Google TTS được ưu tiên vì thường cho
+      pronunciation ổn định hơn voice hệ thống.
+    */
+    try {
+
+      const googleOK =
+        await speakWithGoogleUS(
+          cleanText
+        );
+
+      if (googleOK) {
+        return;
+      }
+
+    }
+    catch (e) {
+      // Google lỗi -> thử voice en-US
+    }
+
+    /*
+      Fallback chỉ là en-US.
+    */
+    const browserOK =
+      await speakWithUSVoice(
+        cleanText
+      );
+
+    /*
+      Không có voice en-US:
+      KHÔNG dùng tiếng Việt.
+    */
+    if (!browserOK) {
+
+      console.warn(
+        'Không tìm thấy giọng American English (en-US).'
+      );
+
+    }
+
+  }
+
+  /* =====================================================
+     FORMAT TIME
+     ===================================================== */
+
+  function formatDisplayTime(sec) {
+
+    if (!sec || sec <= 0) {
+      return "00:00:00";
+    }
+
+    let y =
+      Math.floor(sec / 31104000);
+
+    sec %= 31104000;
+
+    let mo =
+      Math.floor(sec / 2592000);
+
+    sec %= 2592000;
+
+    let d =
+      Math.floor(sec / 86400);
+
+    sec %= 86400;
+
+    let h =
+      Math.floor(sec / 3600);
+
+    sec %= 3600;
+
+    let m =
+      Math.floor(sec / 60);
+
+    let s =
+      Math.floor(sec % 60);
+
+
+    let parts = [];
+
+
+    if (y > 0) {
+      parts.push(`${y} năm`);
+    }
+
+    if (mo > 0) {
+      parts.push(`${mo} tháng`);
+    }
+
+    if (d > 0) {
+      parts.push(`${d} ngày`);
+    }
+
+
+    let timeStr =
+      String(h).padStart(2, '0') +
+      ":" +
+      String(m).padStart(2, '0') +
+      ":" +
+      String(s).padStart(2, '0');
+
+
+    if (parts.length > 0) {
+
+      return parts.join(" ") +
+        "<br>" +
+        timeStr;
+
+    }
+
+    return timeStr;
+
+  }
+
+
+  /* =====================================================
+     DOM READY
+     ===================================================== */
+
+  window.addEventListener(
+    'DOMContentLoaded',
+    (event) => {
+
+      try {
+
+        const savedUser =
+          localStorage.getItem(
+            "vocab_user"
+          );
+
+        const savedPass =
+          localStorage.getItem(
+            "vocab_pass"
+          );
+
+
+        if (
+          savedUser &&
+          savedPass
+        ) {
+
+          document.getElementById(
+            "username"
+          ).value = savedUser;
+
+          document.getElementById(
+            "password"
+          ).value = savedPass;
+
+          document.getElementById(
+            "save-pass"
+          ).checked = true;
+
+        }
+
+      }
+
+      catch(e) {}
+
+    }
+  );
+
+
+  /* =====================================================
+     MESSAGE
+     ===================================================== */
+
+  function showMsg(id, text) {
+
+    let el =
+      document.getElementById(id);
+
+    if (el) {
+      el.innerText = text;
+    }
+
+  }
+
+
+  /* =====================================================
+     LOGIN
+     ===================================================== */
+
+  function handleLogin() {
+
+    try {
+
+      const u =
+        document.getElementById(
+          "username"
+        ).value;
+
+      const p =
+        document.getElementById(
+          "password"
+        ).value;
+
+
+      if (!u || !p) {
+
+        alert(
+          "Vui lòng nhập đủ thông tin!"
+        );
+
+        return;
+
+      }
+
+
+      showMsg(
+        "auth-msg",
+        "Đang đăng nhập..."
+      );
+
+
+      google.script.run
+
+        .withSuccessHandler(
+          res => {
+
+            if (res.success) {
+
+              currentUser =
+                res.username;
+
+
+              try {
+
+                if (
+                  document.getElementById(
+                    "save-pass"
+                  ).checked
+                ) {
+
+                  localStorage.setItem(
+                    "vocab_user",
+                    currentUser
+                  );
+
+                  localStorage.setItem(
+                    "vocab_pass",
+                    p
+                  );
+
+                }
+
+                else {
+
+                  localStorage.removeItem(
+                    "vocab_user"
+                  );
+
+                  localStorage.removeItem(
+                    "vocab_pass"
+                  );
+
+                }
+
+              }
+
+              catch(e) {}
+
+
+              loadDashboard();
+
+            }
+
+            else {
+
+              showMsg(
+                "auth-msg",
+                res.message
+              );
+
+            }
+
+          }
+        )
+
+        .withFailureHandler(
+          err => {
+
+            showMsg(
+              "auth-msg",
+              "Lỗi mạng: " +
+              err.message
+            );
+
+            alert(
+              "Không thể kết nối đến máy chủ. Bạn thử F5 tải lại trang nhé."
+            );
+
+          }
+        )
+
+        .login(u, p);
+
+    }
+
+    catch(err) {
+
+      alert(
+        "Lỗi trình duyệt: " +
+        err.message
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     REGISTER
+     ===================================================== */
+
+  function handleRegister() {
+
+    try {
+
+      const u =
+        document.getElementById(
+          "username"
+        ).value;
+
+      const p =
+        document.getElementById(
+          "password"
+        ).value;
+
+
+      if (!u || !p) {
+
+        alert(
+          "Nhập đủ tài khoản và mật khẩu"
+        );
+
+        return;
+
+      }
+
+
+      showMsg(
+        "auth-msg",
+        "Đang tạo tài khoản..."
+      );
+
+
+      google.script.run
+
+        .withSuccessHandler(
+          res =>
+            showMsg(
+              "auth-msg",
+              res.message
+            )
+        )
+
+        .withFailureHandler(
+          err =>
+            showMsg(
+              "auth-msg",
+              "Lỗi mạng: " +
+              err.message
+            )
+        )
+
+        .register(u, p);
+
+    }
+
+    catch(err) {
+
+      alert(
+        "Lỗi trình duyệt: " +
+        err.message
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     LOGOUT
+     ===================================================== */
+
+  function handleLogout() {
+
+    currentUser = "";
+
+    clearInterval(
+      clockInterval
+    );
+
+    showView(
+      'view-auth'
+    );
+
+    showMsg(
+      "auth-msg",
+      ""
+    );
+
+  }
+
+
+  /* =====================================================
+     VIEW
+     ===================================================== */
+
+  function showView(viewId) {
+
+    document
+      .querySelectorAll(
+        '.app-container > div'
+      )
+      .forEach(
+        el =>
+          el.classList.add(
+            'hidden'
+          )
+      );
+
+
+    document
+      .getElementById(viewId)
+      .classList.remove(
+        'hidden'
+      );
+
+  }
+
+
+  /* =====================================================
+     CALENDAR
+     ===================================================== */
+
+  function renderCalendar(historyMap) {
+
+    const calContainer =
+      document.getElementById(
+        'calendar-container'
+      );
+
+    if (!calContainer) return;
+
+
+    const now =
+      new Date();
+
+    const year =
+      now.getFullYear();
+
+    const month =
+      now.getMonth();
+
+
+    const firstDay =
+      new Date(
+        year,
+        month,
+        1
+      ).getDay();
+
+
+    const daysInMonth =
+      new Date(
+        year,
+        month + 1,
+        0
+      ).getDate();
+
+
+    const monthNames = [
+
+      "Tháng 1",
+      "Tháng 2",
+      "Tháng 3",
+      "Tháng 4",
+      "Tháng 5",
+      "Tháng 6",
+      "Tháng 7",
+      "Tháng 8",
+      "Tháng 9",
+      "Tháng 10",
+      "Tháng 11",
+      "Tháng 12"
+
+    ];
+
+
+    let html = `
+
+      <div class="cal-wrapper">
+
+        <h3
+          style="
+            margin-top:0;
+            color:var(--primary);
+            margin-bottom:10px;
+          "
+        >
+          Lịch học -
+          ${monthNames[month]}
+          ${year}
+        </h3>
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:repeat(7,1fr);
+            gap:5px;
+            text-align:center;
+            font-weight:bold;
+            margin-bottom:10px;
+            color:#888;
+          "
+        >
+
+          <div>CN</div>
+          <div>T2</div>
+          <div>T3</div>
+          <div>T4</div>
+          <div>T5</div>
+          <div>T6</div>
+          <div>T7</div>
+
+        </div>
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:repeat(7,1fr);
+            gap:5px;
+            text-align:center;
+          "
+        >
+    `;
+
+
+    for (
+      let i = 0;
+      i < firstDay;
+      i++
+    ) {
+
+      html += `<div></div>`;
+
+    }
+
+
+    for (
+      let d = 1;
+      d <= daysInMonth;
+      d++
+    ) {
+
+      let checkStr =
+        `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+
+      let hasStudied =
+        historyMap.hasOwnProperty(
+          checkStr
+        ) &&
+        historyMap[checkStr] > 0;
+
+
+      let bg =
+        hasStudied
+
+        ? "background:#fff4f1; border:1px solid #ffd6cc;"
+
+        : "background:#f9f9f9; border:1px solid #eee;";
+
+
+      let todayStyle =
+        (d === now.getDate())
+
+        ? "border:2px solid var(--primary);"
+
+        : "";
+
+
+      html += `
+
+        <div
+          style="
+            padding:10px 5px;
+            border-radius:8px;
+            ${bg}
+            ${todayStyle}
+            position:relative;
+          "
+        >
+
+          <span
+            style="
+              font-size:14px;
+              color:${hasStudied ? '#d90429' : '#555'};
+              font-weight:bold;
+            "
+          >
+            ${d}
+          </span>
+
+          ${
+            hasStudied
+
+            ? `
+              <div
+                style="
+                  position:absolute;
+                  bottom:-4px;
+                  right:0px;
+                  font-size:13px;
+                "
+              >
+                🔥
+              </div>
+            `
+
+            : ""
+          }
+
+        </div>
+      `;
+
+    }
+
+
+    html += `
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    calContainer.innerHTML =
+      html;
+
+  }
+
+
+  /* =====================================================
+     DASHBOARD
+     ===================================================== */
+
+  function loadDashboard() {
+
+    showView(
+      'view-dashboard'
+    );
+
+
+    document.getElementById(
+      "display-name"
+    ).innerText =
+      currentUser;
+
+
+    google.script.run
+
+      .withSuccessHandler(
+        stats => {
+
+          if (stats) {
+
+            document.getElementById(
+              "streak-count"
+            ).innerText =
+              stats.streak;
+
+
+            localTotalSeconds =
+              stats.totalSeconds;
+
+
+            document.getElementById(
+              "total-time"
+            ).innerHTML =
+              formatDisplayTime(
+                localTotalSeconds
+              );
+
+
+            renderCalendar(
+              stats.historyMap
+            );
+
+
+            startStudyTracking();
+
+          }
+
+        }
+      )
+
+      .getUserStats(
+        currentUser
+      );
+
+
+    google.script.run
+
+      .withSuccessHandler(
+        data => {
+
+          globalVocab =
+            data;
+
+        }
+      )
+
+      .getVocabList(
+        currentUser
+      );
+
+  }
+
+
+  /* =====================================================
+     STUDY TRACKING
+     ===================================================== */
+
+  function startStudyTracking() {
+
+    clearInterval(
+      clockInterval
+    );
+
+
+    unsavedSeconds = 0;
+
+
+    clockInterval =
+      setInterval(() => {
+
+        localTotalSeconds++;
+
+        unsavedSeconds++;
+
+
+        document.getElementById(
+          "total-time"
+        ).innerHTML =
+          formatDisplayTime(
+            localTotalSeconds
+          );
+
+
+        if (
+          unsavedSeconds >= 15 &&
+          !isSavingActivity
+        ) {
+
+          let secToSave =
+            unsavedSeconds;
+
+
+          unsavedSeconds = 0;
+
+
+          google.script.run
+
+            .withSuccessHandler(
+              stats => {
+
+                if (stats) {
+
+                  document.getElementById(
+                    "streak-count"
+                  ).innerText =
+                    stats.streak;
+
+
+                  renderCalendar(
+                    stats.historyMap
+                  );
+
+                }
+
+              }
+            )
+
+            .logStudyActivity(
+              currentUser,
+              secToSave,
+              false
+            );
+
+        }
+
+      }, 1000);
+
+  }
+
+
+  function markWordStudied() {
+
+    if (isSavingActivity) {
+      return;
+    }
+
+
+    isSavingActivity = true;
+
+
+    let secToSave =
+      unsavedSeconds;
+
+
+    unsavedSeconds = 0;
+
+
+    google.script.run
+
+      .withSuccessHandler(
+        stats => {
+
+          isSavingActivity =
+            false;
+
+
+          if (stats) {
+
+            document.getElementById(
+              "streak-count"
+            ).innerText =
+              stats.streak;
+
+
+            localTotalSeconds =
+              stats.totalSeconds;
+
+
+            document.getElementById(
+              "total-time"
+            ).innerHTML =
+              formatDisplayTime(
+                localTotalSeconds
+              );
+
+
+            renderCalendar(
+              stats.historyMap
+            );
+
+          }
+
+        }
+      )
+
+      .withFailureHandler(
+        () => {
+
+          isSavingActivity =
+            false;
+
+        }
+      )
+
+      .logStudyActivity(
+        currentUser,
+        secToSave,
+        true
+      );
+
+  }
+
+
+  /* =====================================================
+     SAVE WORD
+     ===================================================== */
+
+  function saveWord() {
+
+    const eng =
+      document.getElementById(
+        "add-eng"
+      ).value;
+
+
+    const vie =
+      document.getElementById(
+        "add-vie"
+      ).value;
+
+
+    if (!eng || !vie) {
+
+      return alert(
+        "Tiếng Anh và Tiếng Việt là bắt buộc!"
+      );
+
+    }
+
+
+    const data = [
+
+      eng,
+
+      document.getElementById(
+        "add-phon"
+      ).value,
+
+      vie,
+
+      document.getElementById(
+        "add-set"
+      ).value ||
+      "Mặc định",
+
+      document.getElementById(
+        "add-ex"
+      ).value,
+
+      document.getElementById(
+        "add-note"
+      ).value
+
+    ];
+
+
+    showMsg(
+      "add-msg",
+      "Đang lưu..."
+    );
+
+
+    google.script.run
+
+      .withSuccessHandler(
+        () => {
+
+          showMsg(
+            "add-msg",
+            "Lưu thành công!"
+          );
+
+
+          document.getElementById(
+            "add-eng"
+          ).value = "";
+
+
+          document.getElementById(
+            "add-vie"
+          ).value = "";
+
+
+          google.script.run
+
+            .withSuccessHandler(
+              d =>
+                globalVocab = d
+            )
+
+            .getVocabList(
+              currentUser
+            );
+
+        }
+      )
+
+      .addVocabulary(
+        currentUser,
+        data
+      );
+
+  }
+
+
+  /* =====================================================
+     SETUP STUDY
+     ===================================================== */
+
+  function setupStudySession(mode) {
+
+    currentMode =
+      mode;
+
+
+    showView(
+      'view-setup'
+    );
+
+
+    const sets =
+      [
+        ...new Set(
+          globalVocab.map(
+            w => w.set
+          )
+        )
+      ];
+
+
+    let html =
+      `<p>Chọn bộ từ:</p>`;
+
+
+    if (
+      sets.length === 0
+    ) {
+
+      html += `
+        <p style="color:red">
+          Chưa có bộ từ vựng nào.
+        </p>
+      `;
+
+    }
+
+
+    sets.forEach(
+      set => {
+
+        html += `
+
+          <label
+            style="display:block;"
+          >
+
+            <input
+              type="checkbox"
+              class="set-checkbox"
+              value="${safeStr(set)}"
+              checked
+            >
+
+            ${set}
+
+          </label>
+        `;
+
+      }
+    );
+
+
+    if (
+      mode === 'srs'
+    ) {
+
+      let todayStr =
+        getLocalTodayStr();
+
+
+      let dueWords =
+        globalVocab.filter(
+          w =>
+            w.nextDate <= todayStr
+        ).length;
+
+
+      if (
+        dueWords === 0
+      ) {
+
+        html += `
+
+          <p
+            style="
+              color:green;
+              font-weight:bold;
+              font-size:18px;
+            "
+          >
+            Bạn đã hoàn thành mục tiêu.
+            Số từ vựng cần học hôm nay là 0.
+          </p>
+
+        `;
+
+      }
+
+      else {
+
+        html += `
+
+          <p
+            style="
+              color:#d90429;
+              font-weight:bold;
+            "
+          >
+            Số từ cần ôn tập ngắt quãng hôm nay:
+            ${dueWords}
+          </p>
+
+        `;
+
+      }
+
+    }
+
+
+    document.getElementById(
+      'set-selection'
+    ).innerHTML =
+      html;
+
+  }
+
+
+  /* =====================================================
+     START STUDY
+     ===================================================== */
+
+  function startStudy() {
+
+    const selectedSets =
+      Array.from(
+        document.querySelectorAll(
+          '.set-checkbox:checked'
+        )
+      ).map(
+        cb => cb.value
+      );
+
+
+    const limit =
+      parseInt(
+        document.getElementById(
+          'word-limit'
+        ).value
+      );
+
+
+    let pool =
+      globalVocab.filter(
+        w =>
+          selectedSets.includes(
+            w.set
+          )
+      );
+
+
+    if (
+      pool.length === 0
+    ) {
+
+      alert(
+        "Không có từ vựng nào trong bộ đã chọn!"
+      );
+
+      return;
+
+    }
+
+
+    if (
+      currentMode === 'srs'
+    ) {
+
+      let todayStr =
+        getLocalTodayStr();
+
+
+      pool =
+        pool.filter(
+          w =>
+            w.nextDate <= todayStr
+        );
+
+
+      if (
+        pool.length === 0
+      ) {
+
+        alert(
+          "Tuyệt vời! Bạn đã hoàn thành tất cả từ vựng cần ôn tập ngắt quãng hôm nay."
+        );
+
+        return;
+
+      }
+
+
+      studyQueue =
+        pool.slice(
+          0,
+          limit
+        );
+
+    }
+
+    else {
+
+      let unlearned =
+        pool.filter(
+          w => {
+
+            if (
+              currentMode === 'flashcard'
+            ) {
+              return w.flashcard != 1;
+            }
+
+            if (
+              currentMode === 'mcq'
+            ) {
+              return w.mcq != 1;
+            }
+
+            if (
+              currentMode === 'written'
+            ) {
+              return w.written != 1;
+            }
+
+            return true;
+
+          }
+        );
+
+
+      if (
+        unlearned.length === 0
+      ) {
+
+        let reset =
+          confirm(
+            "Bạn đã học hết các từ, bạn có muốn học lại từ đầu không?"
+          );
+
+
+        if (reset) {
+
+          google.script.run
+
+            .withSuccessHandler(
+              () => {
+
+                google.script.run
+
+                  .withSuccessHandler(
+                    data => {
+
+                      globalVocab =
+                        data;
+
+                      startStudy();
+
+                    }
+                  )
+
+                  .getVocabList(
+                    currentUser
+                  );
+
+              }
+            )
+
+            .resetProgress(
+              currentUser,
+              selectedSets,
+              currentMode
+            );
+
+        }
+
+        else {
+
+          alert(
+            "Không còn từ nào để học nữa."
+          );
+
+        }
+
+        return;
+
+      }
+
+
+      studyQueue =
+        unlearned
+          .sort(
+            () =>
+              0.5 - Math.random()
+          )
+          .slice(
+            0,
+            limit
+          );
+
+    }
+
+
+    currentCardIndex =
+      0;
+
+
+    showView(
+      'view-study'
+    );
+
+
+    renderCurrentCard();
+
+  }
+
+
+  /* =====================================================
+     WORD DETAILS
+     ===================================================== */
+
+  function getWordDetailsHTML(word) {
+
+    return `
+
+      <div
+        id="word-details-feedback"
+        class="hidden word-details-box"
+      >
+
+        <h4
+          style="
+            margin-top:0;
+            color:#4a6fa5;
+            border-bottom:1px solid #cce5ff;
+            padding-bottom:5px;
+          "
+        >
+          Chi tiết từ vựng
+        </h4>
+
+
+        <p
+          style="margin:8px 0;"
+        >
+
+          <b>Tiếng Anh:</b>
+
+          <span
+            style="
+              color:var(--primary);
+              font-weight:bold;
+              font-size:18px;
+            "
+          >
+            ${word.eng}
+          </span>
+
+          <i class="ipa">
+            ${word.phon}
+          </i>
+
+          <button
+            class="audio-btn"
+            type="button"
+            onclick="speak('${safeStr(word.eng)}')"
+            title="Phát âm American English"
+          >
+            🔊
+          </button>
+
+        </p>
+
+
+        <p
+          style="margin:8px 0;"
+        >
+
+          <b>Tiếng Việt:</b>
+          ${word.vie}
+
+        </p>
+
+
+        <p
+          style="margin:8px 0;"
+        >
+
+          <b>Ví dụ:</b>
+
+          ${word.ex}
+
+          <button
+            class="audio-btn"
+            type="button"
+            onclick="speak('${safeStr(word.ex)}')"
+            title="Phát âm American English"
+          >
+            🔊
+          </button>
+
+        </p>
+
+
+        <p
+          style="margin:8px 0;"
+        >
+
+          <b>Ghi chú:</b>
+          ${word.note}
+
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =====================================================
+     RENDER CARD
+     ===================================================== */
+
+  function renderCurrentCard() {
+
+    document.getElementById(
+      'next-btn'
+    ).classList.add(
+      'hidden'
+    );
+
+
+    document.getElementById(
+      'study-progress'
+    ).innerText =
+      `${currentCardIndex + 1} / ${studyQueue.length}`;
+
+
+    const word =
+      studyQueue[
+        currentCardIndex
+      ];
+
+
+    const container =
+      document.getElementById(
+        'study-content'
+      );
+
+
+    let gameType =
+      currentMode;
+
+
+    if (
+      currentMode === 'srs'
+    ) {
+
+      if (
+        word.level == 0 ||
+        word.level == 1 ||
+        word.level == 6
+      ) {
+
+        gameType =
+          'mcq';
+
+      }
+
+      else if (
+        word.level == 2 ||
+        word.level == 4 ||
+        word.level == 5
+      ) {
+
+        gameType =
+          'written';
+
+      }
+
+      else if (
+        word.level == 3
+      ) {
+
+        gameType =
+          'match';
+
+      }
+
+    }
+
+
+    /* ==========================
+       FLASHCARD
+       ========================== */
+
+    if (
+      gameType === 'flashcard'
+    ) {
+
+      window.activeMCQ =
+        false;
+
+      window.activeWritten =
+        false;
+
+
+      container.innerHTML = `
+
+        <div
+          class="flashcard"
+          onclick="flipCard(
+            this,
+            '${safeStr(word.eng)}'
+          )"
+        >
+
+          <div
+            class="flashcard-inner"
+          >
+
+            <div
+              class="flashcard-front"
+            >
+
+              <h2
+                style="color:var(--text)"
+              >
+                ${word.vie}
+              </h2>
+
+              <p>
+                (Nhấn để lật)
+              </p>
+
+            </div>
+
+
+            <div
+              class="flashcard-back"
+            >
+
+              <h2
+                style="color:var(--primary)"
+              >
+
+                ${word.eng}
+
+                <span
+                  class="ipa"
+                >
+                  ${word.phon}
+                </span>
+
+              </h2>
+
+
+              <p>
+
+                <b>Ví dụ:</b>
+
+                ${word.ex}
+
+                <button
+                  class="audio-btn"
+                  type="button"
+                  onclick="
+                    event.stopPropagation();
+                    speak('${safeStr(word.ex)}')
+                  "
+                  title="Phát âm American English"
+                >
+                  🔊
+                </button>
+
+              </p>
+
+
+              <p>
+
+                <b>Ghi chú:</b>
+
+                ${word.note}
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          onclick="nextCard()"
+        >
+          Tiếp theo
+        </button>
+
+      `;
+
+    }
+
+
+    /* ==========================
+       MCQ
+       ========================== */
+
+    else if (
+      gameType === 'mcq'
+    ) {
+
+      let options =
+        [word.eng];
+
+
+      let wrongPool =
+        globalVocab
+
+          .filter(
+            w =>
+              w.eng !== word.eng
+          )
+
+          .sort(
+            () =>
+              0.5 - Math.random()
+          );
+
+
+      for (
+        let i = 0;
+        i < 3 &&
+        i < wrongPool.length;
+        i++
+      ) {
+
+        options.push(
+          wrongPool[i].eng
+        );
+
+      }
+
+
+      options =
+        options.sort(
+          () =>
+            0.5 - Math.random()
+        );
+
+
+      let html = `
+
+        <h2
+          style="text-align:center;"
+        >
+          ${word.vie}
+        </h2>
+
+        <div
+          class="options-grid"
+          id="mcq-grid"
+        >
+
+      `;
+
+
+      options.forEach(
+        (opt, idx) => {
+
+          html += `
+
+            <button
+              class="option-btn"
+              type="button"
+              id="opt-${idx}"
+              onclick="
+                checkMCQ(
+                  this,
+                  '${safeStr(opt)}',
+                  '${safeStr(word.eng)}'
+                )
+              "
+            >
+              ${opt}
+            </button>
+
+          `;
+
+        }
+      );
+
+
+      html += `
+        </div>
+      `;
+
+
+      html +=
+        getWordDetailsHTML(
+          word
+        );
+
+
+      container.innerHTML =
+        html;
+
+
+      window.activeMCQ =
+        true;
+
+      window.activeWritten =
+        false;
+
+      window.mcqIndex =
+        -1;
+
+    }
+
+
+    /* ==========================
+       WRITTEN
+       ========================== */
+
+    else if (
+      gameType === 'written'
+    ) {
+
+      window.activeMCQ =
+        false;
+
+      window.activeWritten =
+        true;
+
+
+      let html = `
+
+        <h2
+          style="text-align:center;"
+        >
+          ${word.vie}
+        </h2>
+
+
+        <input
+          type="text"
+          id="written-input"
+          placeholder="Nhập tiếng Anh..."
+          autocomplete="off"
+          autofocus
+        >
+
+
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            margin-top:10px;
+          "
+        >
+
+          <button
+            style="width:48%"
+            type="button"
+            onclick="speak('${safeStr(word.eng)}')"
+          >
+            🔊 Nghe gợi ý
+          </button>
+
+
+          <button
+            style="width:48%"
+            type="button"
+            class="btn-pink"
+            id="btn-check-written"
+            onclick="checkWritten('${safeStr(word.eng)}')"
+          >
+            Kiểm tra
+          </button>
+
+        </div>
+
+
+        <div
+          id="written-feedback"
+          style="
+            margin-top:15px;
+            text-align:center;
+            font-weight:bold;
+          "
+        ></div>
+
+      `;
+
+
+      html +=
+        getWordDetailsHTML(
+          word
+        );
+
+
+      container.innerHTML =
+        html;
+
+    }
+
+
+    /* ==========================
+       MATCH
+       ========================== */
+
+    else if (
+      gameType === 'match'
+    ) {
+
+      window.activeMCQ =
+        false;
+
+      window.activeWritten =
+        true;
+
+
+      let html = `
+
+        <h3
+          style="text-align:center;"
+        >
+          ${word.vie}
+          (Nối từ)
+        </h3>
+
+
+        <p>
+          <i>
+            Lưu ý:
+            Logic được rút gọn
+            sang dạng tự luận.
+          </i>
+        </p>
+
+
+        <input
+          type="text"
+          id="match-input"
+          placeholder="Gõ chính xác tiếng Anh"
+          autocomplete="off"
+          autofocus
+        >
+
+
+        <button
+          class="btn-pink"
+          type="button"
+          id="btn-check-written"
+          style="margin-top:10px"
+          onclick="
+            checkWritten(
+              '${safeStr(word.eng)}'
+            )
+          "
+        >
+          Kiểm tra
+        </button>
+
+
+        <div
+          id="written-feedback"
+          style="
+            margin-top:15px;
+            text-align:center;
+            font-weight:bold;
+          "
+        ></div>
+
+      `;
+
+
+      html +=
+        getWordDetailsHTML(
+          word
+        );
+
+
+      container.innerHTML =
+        html;
+
+    }
+
+  }
+
+
+  /* =====================================================
+     FLASHCARD FLIP
+     ===================================================== */
+
+  function flipCard(
+    el,
+    engText
+  ) {
+
+    el.classList.toggle(
+      'flipped'
+    );
+
+
+    if (
+      el.classList.contains(
+        'flipped'
+      )
+    ) {
+
+      speak(
+        engText
+      );
+
+      markWordStudied();
+
+    }
+
+  }
+
+
+  /* =====================================================
+     MCQ
+     ===================================================== */
+
+  function checkMCQ(
+    btnElement,
+    selected,
+    correct
+  ) {
+
+    if (
+      !window.activeMCQ
+    ) {
+      return;
+    }
+
+
+    window.activeMCQ =
+      false;
+
+
+    /*
+      Đọc đáp án đúng
+      bằng American English
+    */
+
+    speak(
+      correct
+    );
+
+
+    markWordStudied();
+
+
+    const isCorrect =
+      normalizeAnswer(selected) ===
+      normalizeAnswer(correct);
+
+
+    if (isCorrect) {
+
+      btnElement.classList.add(
+        'correct'
+      );
+
+
+      if (
+        currentMode !== 'srs'
+      ) {
+
+        google.script.run
+          .markWordDone(
+            currentUser,
+            studyQueue[
+              currentCardIndex
+            ].rowIndex,
+            currentMode
+          );
+
+
+        studyQueue[
+          currentCardIndex
+        ][currentMode] = 1;
+
+      }
+
+    }
+
+    else {
+
+      btnElement.classList.add(
+        'wrong'
+      );
+
+
+      document
+        .querySelectorAll(
+          '.option-btn'
+        )
+        .forEach(
+          btn => {
+
+            if (
+              normalizeAnswer(btn.innerText) ===
+              normalizeAnswer(correct)
+            ) {
+
+              btn.classList.add(
+                'correct'
+              );
+
+            }
+
+          }
+        );
+
+
+      studyQueue.push(
+        studyQueue[
+          currentCardIndex
+        ]
+      );
+
+    }
+
+
+    if (
+      currentMode === 'srs'
+    ) {
+
+      google.script.run
+        .updateSRS(
+          currentUser,
+          studyQueue[
+            currentCardIndex
+          ].rowIndex,
+          isCorrect
+        );
+
+    }
+
+
+    document
+      .getElementById(
+        'word-details-feedback'
+      )
+      .classList.remove(
+        'hidden'
+      );
+
+
+    document
+      .getElementById(
+        'next-btn'
+      )
+      .classList.remove(
+        'hidden'
+      );
+
+  }
+
+
+  /* =====================================================
+     WRITTEN
+     ===================================================== */
+
+  function checkWritten(
+    correct
+  ) {
+
+    if (
+      !window.activeWritten
+    ) {
+      return;
+    }
+
+
+    const inputEl =
+      document.getElementById(
+        'written-input'
+      )
+
+      ||
+
+      document.getElementById(
+        'match-input'
+      );
+
+
+    if (!inputEl) {
+      return;
+    }
+
+
+    window.activeWritten =
+      false;
+
+
+    const answer =
+      normalizeAnswer(inputEl.value);
+
+
+    const correctNormalized =
+      normalizeAnswer(correct);
+
+
+    const isCorrect =
+      answer ===
+      correctNormalized;
+
+
+    const feedback =
+      document.getElementById(
+        'written-feedback'
+      );
+
+
+    /*
+      Đọc đáp án bằng
+      American English
+    */
+
+    speak(
+      correct
+    );
+
+
+    markWordStudied();
+
+
+    if (isCorrect) {
+
+      feedback.style.color =
+        "green";
+
+
+      feedback.innerText =
+        "Chính xác!";
+
+
+      if (
+        currentMode !== 'srs'
+      ) {
+
+        google.script.run
+          .markWordDone(
+            currentUser,
+            studyQueue[
+              currentCardIndex
+            ].rowIndex,
+            currentMode
+          );
+
+
+        studyQueue[
+          currentCardIndex
+        ][currentMode] = 1;
+
+      }
+
+    }
+
+    else {
+
+      feedback.style.color =
+        "red";
+
+
+      feedback.innerText =
+        `Sai rồi. Đáp án đúng: ${correct}`;
+
+
+      studyQueue.push(
+        studyQueue[
+          currentCardIndex
+        ]
+      );
+
+    }
+
+
+    if (
+      currentMode === 'srs'
+    ) {
+
+      google.script.run
+        .updateSRS(
+          currentUser,
+          studyQueue[
+            currentCardIndex
+          ].rowIndex,
+          isCorrect
+        );
+
+    }
+
+
+    inputEl.disabled =
+      true;
+
+
+    document
+      .getElementById(
+        'btn-check-written'
+      )
+      .disabled =
+      true;
+
+
+    document
+      .getElementById(
+        'word-details-feedback'
+      )
+      .classList.remove(
+        'hidden'
+      );
+
+
+    document
+      .getElementById(
+        'next-btn'
+      )
+      .classList.remove(
+        'hidden'
+      );
+
+  }
+
+
+  /* =====================================================
+     NEXT CARD
+     ===================================================== */
+
+  function nextCard() {
+
+    if (
+      currentMode === 'flashcard'
+    ) {
+
+      google.script.run
+        .markWordDone(
+          currentUser,
+          studyQueue[
+            currentCardIndex
+          ].rowIndex,
+          'flashcard'
+        );
+
+
+      studyQueue[
+        currentCardIndex
+      ]['flashcard'] = 1;
+
+    }
+
+
+    currentCardIndex++;
+
+
+    if (
+      currentCardIndex <
+      studyQueue.length
+    ) {
+
+      renderCurrentCard();
+
+    }
+
+    else {
+
+      alert(
+        "Chúc mừng! Bạn đã hoàn thành phiên học này."
+      );
+
+
+      exitStudy();
+
+
+      setupStudySession(
+        currentMode
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     EXIT
+     ===================================================== */
+
+  function exitStudy() {
+
+    showView(
+      'view-dashboard'
+    );
+
+  }
+
+
+  /* =====================================================
+     KEYBOARD
+     ===================================================== */
+
+  document.addEventListener(
+    'keydown',
+    function(e) {
+
+      let nextBtn =
+        document.getElementById(
+          'next-btn'
+        );
+
+
+      if (
+        e.key === 'Enter' &&
+        nextBtn &&
+        !nextBtn.classList.contains(
+          'hidden'
+        )
+      ) {
+
+        e.preventDefault();
+
+        nextCard();
+
+        return;
+
+      }
+
+
+      if (
+        e.key === 'Enter' &&
+        window.activeWritten
+      ) {
+
+        e.preventDefault();
+
+
+        let btnCheck =
+          document.getElementById(
+            'btn-check-written'
+          );
+
+
+        if (btnCheck) {
+          btnCheck.click();
+        }
+
+
+        return;
+
+      }
+
+
+      if (
+        window.activeMCQ &&
+        (
+          e.key === 'ArrowDown' ||
+          e.key === 'ArrowUp'
+        )
+      ) {
+
+        e.preventDefault();
+
+
+        let btns =
+          document.querySelectorAll(
+            '.option-btn'
+          );
+
+
+        if (
+          btns.length === 0
+        ) {
+          return;
+        }
+
+
+        btns.forEach(
+          b =>
+            b.classList.remove(
+              'selected'
+            )
+        );
+
+
+        if (
+          e.key === 'ArrowDown'
+        ) {
+
+          window.mcqIndex =
+            (
+              window.mcqIndex + 1
+            ) %
+            btns.length;
+
+        }
+
+        else {
+
+          window.mcqIndex =
+            (
+              window.mcqIndex - 1 +
+              btns.length
+            ) %
+            btns.length;
+
+        }
+
+
+        btns[
+          window.mcqIndex
+        ].classList.add(
+          'selected'
+        );
+
+      }
+
+
+      if (
+        window.activeMCQ &&
+        e.key === 'Enter' &&
+        window.mcqIndex >= 0
+      ) {
+
+        e.preventDefault();
+
+
+        let selectedBtn =
+          document.querySelectorAll(
+            '.option-btn'
+          )[
+            window.mcqIndex
+          ];
+
+
+        if (selectedBtn) {
+          selectedBtn.click();
+        }
+
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
